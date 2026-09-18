@@ -46,7 +46,7 @@ const router = createBrowserRouter([
                 element: <Dashboard></Dashboard>
               },
               {
-                path: '/all-users',
+                path: '/all-passenger',
                 element: <AllUser></AllUser>
               },
               {
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
                 element: <ContactPayment></ContactPayment>
               },
               {
-                path: "/meetup",
+                path: "/all-drivers",
                 element: <Meetup></Meetup>
               },
             ]

@@ -94,14 +94,14 @@ const Layout = () => {
         ] : []),
         ...(user?.role === "ADMIN" ? [
           {
-            path: "/all-users",
-            label: "All Users",
+            path: "/all-passenger",
+            label: "All Passenger",
             icon: Users2,
           }
         ] : []),
         ...(user?.role === "ADMIN" ? [
           {
-            path: "/meetup",
+            path: "/all-drivers",
             label: "All Drivers",
             icon: Users2,
           }

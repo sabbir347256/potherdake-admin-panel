@@ -10,7 +10,7 @@ const AuthContext = ({ children }) => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["userProfile"],
     queryFn: () =>
-      fetch(`${config.backendUrl}/user/get-profile`, {
+      fetch(`${config.backendUrl}/user/profile`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

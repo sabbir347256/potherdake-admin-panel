@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useCustomQuery } from "../../../utilies/useCustomQuery";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
@@ -6,16 +6,23 @@ import SearchInput from "../../../utilies/SearchInput";
 import DynamicHeader from "../../../DynamicComponent/DynamicHeader";
 import config from "../../../utilies/envCongig";
 import toast, { Toaster } from "react-hot-toast";
+import { AuthProvider } from "../../../../AuthProvider/CreateContext";
 
 const Meetup = () => {
+    const { token } = useContext(AuthProvider)
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const limit = 10;
 
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
+
     const { data: meetupResponse, refetch } = useCustomQuery({
-        url: `${config?.backendUrl}/meetup?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
+        url: `${config?.backendUrl}/user/drivers`,
         queryKey: ["meetups", searchTerm, page],
+        headers: authHeader
     });
+
+    console.log(meetupResponse)
 
     const handleDelete = async (id) => {
         try {
@@ -30,7 +37,6 @@ const Meetup = () => {
     const meetups = meetupResponse?.data || [];
     const meta = meetupResponse?.meta || { totalPage: 1 };
 
-    console.log(meetups)
 
 
     return (
@@ -39,8 +45,8 @@ const Meetup = () => {
 
             <div className="flex justify-between md:items-center flex-col md:flex-row">
                 <DynamicHeader
-                    mainHeader={"Meetup Request Management"}
-                    subHeaderName={`${meetupResponse?.length} total users`}
+                    mainHeader={"All Drivers"}
+                    subHeaderName={`${meetups?.length} total users`}
                 />
             </div>
             <div className="bg-[#fffbfb] min-h-screen mt-4 overflow-x-auto w-full px-6">
@@ -55,45 +61,75 @@ const Meetup = () => {
                 <table className="min-w-full divide-y divide-gray-200 border">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant User ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target User ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Number</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submission Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Action</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                SL
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Driver ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Number
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {meetups.length > 0 ? (
-                            meetups.map((meetup) => (
-                                <tr key={meetup._id} className="hover:bg-slate-850 transition">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {meetup.applicantUser?.fullName || "Unknown User"}
-                                        <span className="block text-[10px] text-slate-500 font-mono mt-0.5">{meetup.user?.email || ""}</span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{meetup.userId}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{meetup.targetUserId}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{meetup.mobileNumber}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {meetup.createdAt ? new Date(meetup.createdAt).toLocaleDateString() : "N/A"}
-                                    </td>
-                                    <td className="p-4 text-center">
-                                        <button
-                                            onClick={() => handleDelete(meetup._id)}
-                                            className="p-1.5 rounded-lg bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-300 border border-red-900/30 transition"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={6} className="p-8 text-center text-slate-500 font-medium">
-                                    No meetup records found matching the system search criteria.
+                        {meetups?.map((user, index) => (
+                            <tr key={user._id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {(page - 1) * limit + index + 1}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {user?.userID}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {user.fullName}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {user.email}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {user.contactNo}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    <select
+                                        value={user.isActive || "ACTIVE"}
+                                        onChange={(e) =>
+                                            handleStatusChange(user._id, e.target.value)
+                                        }
+                                        className={`px-2 py-1 rounded border text-xs font-semibold uppercase outline-none bg-white ${user.isActive === "ACTIVE"
+                                                ? "text-emerald-800 border-emerald-300"
+                                                : user.isActive === "INACTIVE"
+                                                    ? "text-gray-800 border-gray-300"
+                                                    : "text-amber-800 border-amber-300"
+                                            }`}
+                                    >
+                                        <option value="ACTIVE">Active</option>
+                                        <option value="INACTIVE">Inactive</option>
+                                        <option value="BLOCKED">Blocked</option>
+                                    </select>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <button
+                                        onClick={() => handleDelete(user._id)}
+                                        className="text-red-600 hover:text-red-900 p-1 transition-colors inline-flex items-center"
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
                                 </td>
                             </tr>
-                        )}
+                        ))}
                     </tbody>
                 </table>
 

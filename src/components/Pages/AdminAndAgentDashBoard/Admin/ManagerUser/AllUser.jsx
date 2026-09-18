@@ -27,7 +27,7 @@ const AllUser = () => {
 
   const { data: usersResponse, isLoading } = useCustomQuery({
     queryKey: ["users", page, limit, searchTerm],
-    url: `${config.backendUrl}/user?page=${page}&limit=${limit}&searchTerm=${searchTerm}`,
+    url: `${config.backendUrl}/user/passengers?page=${page}&limit=${limit}&searchTerm=${searchTerm}`,
     headers: authHeader,
   });
 
