@@ -18,6 +18,7 @@ const Login = () => {
     } = useForm();
 
     const onSubmit = async (data) => {
+        console.log(data)
         setApiError('');
         setIsLoading(true);
         try {

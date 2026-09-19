@@ -10,44 +10,18 @@ import { useApiHeader } from "../../../utilies/token";
 
 const NidDocument = () => {
     const { token } = useContext(AuthProvider);
-    // const [submissions, setSubmissions] = useState([]);
-    // const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
-     const apiHeader = useApiHeader();
-
+    const apiHeader = useApiHeader();
 
     const { data: datasubmissions, isLoading, refetch } = useCustomQuery({
         queryKey: ["users"],
-        url: `${config.backendUrl}/verification/nid-submissions`,
+        url: `${config.backendUrl}/user/allusers`,
         headers: {
             Authorization: `Bearer ${token}`,
         },
     });
 
-    const submissions = datasubmissions?.data;
-
-    console.log(submissions)
-
-    // const fetchSubmissions = async () => {
-    //     try {
-    //         const token = localStorage.getItem("token");
-    //         const res = await axios.get(`${config?.backendUrl}/user/admin/nid-submissions`, {
-    //             headers: { Authorization: `Bearer ${token}` },
-    //         });
-    //         if (res.data?.success) {
-    //             setSubmissions(res.data.data);
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error("Failed to load submissions");
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     fetchSubmissions();
-    // }, []);
+    const submissions = datasubmissions?.data || [];
 
     const handleUpdateStatus = async (id, status) => {
         const toastId = toast.loading(`Updating status to ${status}...`);
@@ -85,6 +59,7 @@ const NidDocument = () => {
     if (isLoading) {
         return <div className="p-8 text-center text-slate-500">Loading submissions...</div>;
     }
+
     return (
         <div>
             <Toaster position="top-right" reverseOrder={false} />
@@ -96,8 +71,6 @@ const NidDocument = () => {
                 />
             </div>
             <div className="bg-[#fffbfb] min-h-screen mt-4 overflow-x-auto w-full px-6">
-
-
                 <table className="min-w-full divide-y divide-gray-200 border">
                     <thead className="bg-gray-50">
                         <tr>
@@ -115,32 +88,47 @@ const NidDocument = () => {
                         {submissions.map((user, index) => (
                             <tr key={user._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.userId?.userID || "N/A"}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.userId?.fullName || "N/A"}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.userId?.email || "N/A"}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.userId?.contactNo || "N/A"}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user?.userID || "N/A"}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user?.fullName || "N/A"}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user?.email || "N/A"}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user?.contactNo || "N/A"}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     <div className="flex gap-2">
-                                        {user.nidImages?.map((img, idx) => (
-                                            <div key={idx} className="relative group w-16 h-10 border border-gray-300 rounded overflow-hidden bg-gray-50 aspect-video cursor-pointer" onClick={() => setSelectedImage(img)}>
-                                                <img src={img} alt="NID" className="w-full h-full object-cover" />
+                                        {user?.nidFront && (
+                                            <div
+                                                className="relative group w-16 h-10 border border-gray-300 rounded overflow-hidden bg-gray-50 aspect-video cursor-pointer"
+                                                onClick={() => setSelectedImage(user?.nidFront)}
+                                            >
+                                                <img src={user?.nidFront} alt="NID Front" className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                                                     <Eye className="w-3 h-3 text-white" />
                                                 </div>
                                             </div>
-                                        ))}
+                                        )}
+                                        {user?.nidBack && (
+                                            <div
+                                                className="relative group w-16 h-10 border border-gray-300 rounded overflow-hidden bg-gray-50 aspect-video cursor-pointer"
+                                                onClick={() => setSelectedImage(user?.nidBack)}
+                                            >
+                                                <img src={user?.nidBack} alt="NID Back" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                                                    <Eye className="w-3 h-3 text-white" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     <select
                                         value={user.status || "pending"}
                                         onChange={(e) => handleUpdateStatus(user._id, e.target.value)}
-                                        className={`px-2 py-1 rounded border text-xs font-semibold uppercase outline-none bg-white ${user.status === "verified"
-                                            ? "text-emerald-800 border-emerald-300"
-                                            : user.status === "rejected"
+                                        className={`px-2 py-1 rounded border text-xs font-semibold uppercase outline-none bg-white ${
+                                            user.status === "verified"
+                                                ? "text-emerald-800 border-emerald-300"
+                                                : user.status === "rejected"
                                                 ? "text-rose-800 border-rose-300"
                                                 : "text-amber-800 border-amber-300"
-                                            }`}
+                                        }`}
                                     >
                                         <option value="pending">Pending</option>
                                         <option value="verified">Verified</option>
