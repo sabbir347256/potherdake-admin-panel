@@ -1,5 +1,5 @@
 import SidebarItem from "../../../Shared/SidebarItem";
-import logo from '../../../../../assets/images/logo.jpeg'
+import logo from '../../../../../assets/images/mainLogo.jpg';
 import {
   LayoutDashboard,
   LogOut,
@@ -359,7 +359,7 @@ const Layout = () => {
       >
         <div className="py-2 px-3 flex items-center justify-between flex-shrink-0">
           <h1 className="text-xl font-bold text-red-600 tracking-tight">
-            <img src={logo} className="size-12" alt="" />
+            <img src={logo} className="size-12 rounded-lg" alt="" />
             {/* Pura <span className="text-rose-500">VidaX</span> */}
           </h1>
           <button
