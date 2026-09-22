@@ -1,161 +1,181 @@
-import axios from 'axios';
-import { ArrowUpRight, Crown, TrendingUp, UserCheck, Users } from 'lucide-react';
-import config from '../../../utilies/envCongig';
+import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import {
+    Users,
+    Car,
+    CheckCircle2,
+    MapPin,
+    Wallet,
+    RefreshCw,
+    TrendingUp,
+    ShieldCheck
+} from 'lucide-react';
 import { AuthProvider } from '../../../../AuthProvider/CreateContext';
-import { useContext } from 'react';
+import config from '../../../utilies/envCongig';
+
+const backendUrl = 'http://localhost:5000/api/v1';
 
 const Dashboard = () => {
     const { token } = useContext(AuthProvider);
 
     const fetchDashboardStats = async () => {
-        const { data } = await axios.get(`${config?.backendUrl}/user/dashboard-stats`, {
+        const response = await axios.get(`${config.backendUrl}/tripBookedRoute/dashboard/stats`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        return data.data;
+        return response.data.data;
     };
 
-    const { data: statsData, isLoading, isError } = useQuery({
-        queryKey: ['dashboardStats'],
-        queryFn: fetchDashboardStats
+    const { data: stats, isLoading, isError, refetch, isRefetching } = useQuery({
+        queryKey: ['adminDashboardStats', token],
+        queryFn: fetchDashboardStats,
+        enabled: !!token,
+        refetchInterval: 30000
     });
-
-    console.log(statsData)
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+            <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center text-zinc-100">
+                <RefreshCw className="w-10 h-10 text-indigo-500 animate-spin mb-3" />
+                <p className="text-zinc-400 font-medium">Loading Overview Stats...</p>
             </div>
         );
     }
 
     if (isError) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <p className="text-red-600 font-semibold">Failed to load dashboard statistics.</p>
+            <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center px-4">
+                <div className="bg-rose-950/40 border border-rose-800/60 p-6 rounded-2xl max-w-md text-center">
+                    <p className="text-rose-400 font-semibold text-lg mb-4">
+                        Failed to load dashboard data
+                    </p>
+                    <button
+                        onClick={() => refetch()}
+                        className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl transition shadow-lg shadow-rose-950/50"
+                    >
+                        Retry Loading
+                    </button>
+                </div>
             </div>
         );
     }
 
-    const maxCount = Math.max(...(statsData?.graphData?.map(d => d.count) || [1]), 1);
-
-    const stats = [
+    const statCards = [
         {
-            title: "Total Members",
-            value: statsData?.totalUsers?.toLocaleString() || "0",
+            title: 'Total Drivers',
+            value: stats?.totalDrivers || 0,
+            icon: Car,
+            color: 'text-emerald-400',
+            bgColor: 'bg-emerald-950/40',
+            borderColor: 'border-emerald-800/40'
+        },
+        {
+            title: 'Total Passengers',
+            value: stats?.totalPassengers || 0,
             icon: Users,
+            color: 'text-indigo-400',
+            bgColor: 'bg-indigo-950/40',
+            borderColor: 'border-indigo-800/40'
         },
         {
-            title: "Total Agents",
-            value: statsData?.totalAgents?.toLocaleString() || "0",
-            icon: Users,
+            title: 'Confirmed Bookings',
+            value: stats?.confirmedBookings || 0,
+            icon: CheckCircle2,
+            color: 'text-teal-400',
+            bgColor: 'bg-teal-950/40',
+            borderColor: 'border-teal-800/40'
         },
         {
-            title: "Premium Members",
-            value: statsData?.premiumUsers?.toLocaleString() || "0",
-            icon: Crown,
-        },
-        {
-            title: "Verified Profiles",
-            value: statsData?.verifiedUsers?.toLocaleString() || "0",
-            icon: UserCheck,
-        },
+            title: 'Total Trips Posted',
+            value: stats?.totalTrips || 0,
+            icon: MapPin,
+            color: 'text-amber-400',
+            bgColor: 'bg-amber-950/40',
+            borderColor: 'border-amber-800/40'
+        }
     ];
-
     return (
-        <div className="min-h-screen bg-slate-50 p-4">
-            <div className="mb-8">
-                <p className="text-gray-500 mt-2">
-                    Welcome back to Bibah.app management panel
-                </p>
-            </div>
+        <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
+            <div className="space-y-8">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <ShieldCheck className="w-6 h-6 text-indigo-600" />
+                            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                                Admin Dashboard
+                            </h1>
+                        </div>
+                        <p className="text-sm text-slate-500">
+                            Real-time platform statistics & commission earnings
+                        </p>
+                    </div>
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-                {stats.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                        <div
-                            key={index}
-                            className="bg-white rounded-3xl p-6 border border-red-100 shadow-sm hover:shadow-xl transition-all duration-300"
-                        >
-                            <div className="flex justify-between items-center">
-                                <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
-                                    <Icon className="text-red-600" size={28} />
-                                </div>
-                                <div className="flex items-center gap-1 text-green-600 font-semibold">
-                                    <ArrowUpRight size={16} />
-                                    +5.4%
+                    <button
+                        onClick={() => refetch()}
+                        disabled={isRefetching}
+                        className="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm self-start md:self-auto disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 text-indigo-600 ${isRefetching ? 'animate-spin' : ''}`} />
+                        <span>Refresh</span>
+                    </button>
+                </header>
+
+                <section className="bg-gradient-to-r from-indigo-50 via-white to-slate-50 border border-indigo-100 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+                    <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-indigo-500/5 blur-3xl pointer-events-none" />
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-center gap-4">
+                            <div className="p-4 bg-indigo-100/80 border border-indigo-200 rounded-2xl">
+                                <Wallet className="w-8 h-8 text-indigo-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs uppercase tracking-widest text-indigo-600 font-bold mb-1">
+                                    System Commission Balance
+                                </p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+                                        ${stats?.adminWalletBalance?.toLocaleString() || '0'}
+                                    </span>
+                                    <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                                        <TrendingUp className="w-3.5 h-3.5" /> 5% Commission Fee
+                                    </span>
                                 </div>
                             </div>
-                            <h3 className="text-gray-500 text-sm mt-6">
-                                {item.title}
-                            </h3>
-                            <h2 className="text-4xl font-bold text-gray-990 mt-2">
-                                {item.value}
-                            </h2>
                         </div>
-                    );
-                })}
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-6 mt-8">
-                <div className="bg-white rounded-3xl border border-red-100 p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
-                        <TrendingUp className="text-red-600" />
-                        <h2 className="text-xl font-bold text-gray-900">
-                            Platform Overview
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-red-50 rounded-2xl p-5">
-                            <h3 className="text-gray-500 text-sm">
-                                Male Profiles
-                            </h3>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">
-                                {statsData?.maleUsers >= 1000 ? `${(statsData.maleUsers / 1000).toFixed(1)}K` : statsData?.maleUsers || 0}
-                            </p>
-                        </div>
-
-                        <div className="bg-red-50 rounded-2xl p-5">
-                            <h3 className="text-gray-500 text-sm">
-                                Female Profiles
-                            </h3>
-                            <p className="text-3xl font-bold text-gray-900 mt-2">
-                                {statsData?.femaleUsers >= 1000 ? `${(statsData.femaleUsers / 1000).toFixed(1)}K` : statsData?.femaleUsers || 0}
+                        <div className="bg-white/80 border border-slate-200 px-4 py-3 rounded-2xl shadow-sm">
+                            <p className="text-xs text-slate-500 font-medium">
+                                Collected automatically from confirmed ride bookings
                             </p>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-3xl p-8 text-white overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                    <h2 className="text-3xl font-bold mb-2">
-                        Bibah.app
-                    </h2>
-                    <p className="text-red-100 mb-8">
-                        Connecting hearts, building families.
-                    </p>
-                    <div className="flex gap-8">
-                        <div>
-                            <h3 className="text-4xl font-bold">
-                                {((statsData?.totalUsers || 0)) >= 1000 ? `${(((statsData?.totalUsers || 0) ) / 1000).toFixed(0)}K+` : ((statsData?.totalUsers || 0))}
-                            </h3>
-                            <p className="text-red-100">
-                                Active Members
-                            </p>
-                        </div>
-                        {/* <div>
-                            <h3 className="text-4xl font-bold">1.4K+</h3>
-                            <p className="text-red-100">
-                                Successful Matches
-                            </p>
-                        </div> */}
-                    </div>
-                </div>
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {statCards.map((card, idx) => {
+                        const Icon = card.icon;
+                        return (
+                            <div
+                                key={idx}
+                                className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm transition hover:shadow-md hover:border-slate-300 flex flex-col justify-between"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                        {card.title}
+                                    </span>
+                                    <div className="p-2.5 bg-slate-100 rounded-xl">
+                                        <Icon className="w-5 h-5 text-indigo-600" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span className="text-3xl font-black text-slate-900 tracking-tight">
+                                        {card.value.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </section>
             </div>
         </div>
     );
