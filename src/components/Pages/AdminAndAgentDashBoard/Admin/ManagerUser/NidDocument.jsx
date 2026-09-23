@@ -80,8 +80,8 @@ const NidDocument = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NID Documents</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th> */}
+                            {/* <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th> */}
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -118,7 +118,7 @@ const NidDocument = () => {
                                         )}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     <select
                                         value={user.status || "pending"}
                                         onChange={(e) => handleUpdateStatus(user._id, e.target.value)}
@@ -134,15 +134,15 @@ const NidDocument = () => {
                                         <option value="verified">Verified</option>
                                         <option value="rejected">Rejected</option>
                                     </select>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                </td> */}
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                                     <button
                                         onClick={() => handleDeleteSubmission(user._id)}
                                         className="text-red-600 hover:text-red-900 p-1 transition-colors inline-flex items-center"
                                     >
                                         <Trash2 className="h-5 w-5" />
                                     </button>
-                                </td>
+                                </td> */}
                             </tr>
                         ))}
                         {submissions.length === 0 && (

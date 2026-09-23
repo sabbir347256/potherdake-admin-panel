@@ -7,9 +7,11 @@ import DynamicHeader from "../../../DynamicComponent/DynamicHeader";
 import config from "../../../utilies/envCongig";
 import toast, { Toaster } from "react-hot-toast";
 import { AuthProvider } from "../../../../AuthProvider/CreateContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Meetup = () => {
     const { token } = useContext(AuthProvider)
+    const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const limit = 10;
@@ -22,11 +24,26 @@ const Meetup = () => {
         headers: authHeader
     });
 
-    console.log(meetupResponse)
+    const handleStatusChange = async (userId, newStatus) => {
+        try {
+            await axios.patch(
+                `${config.backendUrl}/user/status/${userId}`,
+                { status: newStatus },
+                { headers: { Authorization: `Bearer ${token}` } },
+            );
+            queryClient.invalidateQueries(["users"]);
+            toast.success(`Status updated to ${newStatus} successfully!`);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update status.");
+        }
+    };
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${config?.backendUrl}/meetup/${id}`);
+            await axios.delete(`${config.backendUrl}/user/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             toast.success("Deleted successfully!");
             refetch();
         } catch (error) {
@@ -109,10 +126,10 @@ const Meetup = () => {
                                             handleStatusChange(user._id, e.target.value)
                                         }
                                         className={`px-2 py-1 rounded border text-xs font-semibold uppercase outline-none bg-white ${user.isActive === "ACTIVE"
-                                                ? "text-emerald-800 border-emerald-300"
-                                                : user.isActive === "INACTIVE"
-                                                    ? "text-gray-800 border-gray-300"
-                                                    : "text-amber-800 border-amber-300"
+                                            ? "text-emerald-800 border-emerald-300"
+                                            : user.isActive === "INACTIVE"
+                                                ? "text-gray-800 border-gray-300"
+                                                : "text-amber-800 border-amber-300"
                                             }`}
                                     >
                                         <option value="ACTIVE">Active</option>
