@@ -59,8 +59,8 @@ const Login = () => {
 
             <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl border border-red-100">
                 <div className="mb-6 text-center">
-                    <h2 className="text-4xl font-black text-red-600 tracking-tight">Bibah</h2>
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mt-1">Premium Matchmaking</p>
+                    <h2 className="text-4xl font-black text-red-600 tracking-tight">Pother Dake</h2>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mt-1">Ride Matchmaking</p>
                 </div>
 
                 {apiError && (
